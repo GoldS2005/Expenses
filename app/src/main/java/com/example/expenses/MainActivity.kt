@@ -27,16 +27,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.expenses.data.Category
 import com.example.expenses.data.Expense
 import com.example.expenses.model.AddCategoryScreen
@@ -64,43 +65,32 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ExpenseManagerApp() {
-    var currentState by remember {
-        mutableStateOf(1)
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "main_screen") {
+        composable("main_screen") {
+            MainScreen(
+                onCategoryClick = { navController.navigate("add_category_screen") },
+                onExpenseClick = { navController.navigate("add_expense_screen") },
+            )
+        }
+        composable("add_category_screen") {
+            AddCategoryScreen(
+                onBackwardClick = { navController.popBackStack() }
+            )
+        }
+        composable("add_expense_screen") {
+            AddExpenseScreen(
+                onBackwardClick = { navController.popBackStack() }
+            )
+        }
+
     }
-
-    when(currentState) {
-        1-> {
-            MainScreen()
-            Display1(Forward = {currentState = 2})
-            Display2(Forward = {currentState = 3})
-        }
-        2-> {
-            Column(modifier = Modifier, horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Top) {
-                Display3(Backward = {currentState = 1})
-                AddExpenseScreen()
-            }
-
-        }
-        3-> {
-            Column(modifier = Modifier, horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Top) {
-                Display3(Backward = {currentState = 1})
-                AddCategoryScreen()
-            }
-
-
-        }
-    }
-
-
 
 }
 
-
-
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(modifier: Modifier = Modifier, onCategoryClick: () -> Unit, onExpenseClick: () -> Unit) {
     val expenseTrackerViewModel: ExpenseTrackerViewModel = viewModel()
     val expenses = expenseTrackerViewModel.expenses.value
     val categories = expenseTrackerViewModel.categories.value
@@ -109,20 +99,31 @@ fun MainScreen(modifier: Modifier = Modifier) {
     }
     val joke = remember { mutableStateOf("Загрузка шутки...") }
 
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize()
-    )   {
-
+    Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
         ExpenseHistory(expenses, onDeleteExpense = removeExpense)
         Spacer(modifier = Modifier.height(16.dp))
         ExpenseStatistics(expenses, categories)
+    }
+    Row(verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onCategoryClick) {
+            Text(text = "Категория", textAlign = TextAlign.Center, modifier = Modifier.width(75.dp))
 
         }
 
+
+    }
+    Row(verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.End,
+        modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onExpenseClick) {
+            Text(text = "Расход", textAlign = TextAlign.Center, modifier = Modifier.width(75.dp))
+
+        }
     }
 
+    }
 
 
 @Composable
@@ -173,48 +174,6 @@ fun calculateTotalExpenses(expenses: List<Expense>): Double {
     }
     return total
 }
-
-@Composable
-fun Display1 (Forward: () -> Unit) {
-    Row(verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.End,
-        modifier = Modifier.fillMaxWidth()) {
-        Button(onClick = Forward) {
-            Text(text = "Расход", textAlign = TextAlign.Center, modifier = Modifier.width(75.dp))
-
-        }
-    }
-
-}
-@Composable
-fun Display2 (Forward: () -> Unit) {
-    Row(verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth()) {
-        Button(onClick = Forward) {
-            Text(text = "Категория", textAlign = TextAlign.Center, modifier = Modifier.width(75.dp))
-
-        }
-    }
-
-}
-
-@Composable
-fun Display3 (Backward: () -> Unit) {
-    Row(verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth()) {
-        IconButton(onClick =  Backward ) {
-            Icon(imageVector =  Icons.Filled.ArrowBack, contentDescription = null,
-                tint = MaterialTheme.colorScheme.primaryContainer)
-
-        }
-
-    }
-
-}
-
-
 
 @Preview(showBackground = true)
 @Composable

@@ -1,19 +1,23 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 package com.example.expenses.model
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -57,8 +61,9 @@ class ExpenseTrackerViewModel: ViewModel() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddExpenseScreen() {
+fun AddExpenseScreen(onBackwardClick: () -> Unit) {
     val amountState = remember { mutableStateOf(0.0) }
     val categoryState = remember { mutableStateOf("") }
     val expenseViewModel: ExpenseTrackerViewModel = viewModel()
@@ -66,6 +71,16 @@ fun AddExpenseScreen() {
     val localFocusManager = LocalFocusManager.current
 
     Column {
+        Row(verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth()) {
+            IconButton(onClick =  onBackwardClick ) {
+                Icon(imageVector =  Icons.Filled.ArrowBack, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primaryContainer)
+
+            }
+
+        }
         TextField(
             value = amountState.value.toString(),
             onValueChange = { amountState.value = it.toDoubleOrNull() ?: 0.0 },
@@ -102,14 +117,25 @@ fun AddExpenseScreen() {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCategoryScreen() {
+fun AddCategoryScreen(onBackwardClick: () -> Unit) {
     val expenseViewModel: ExpenseTrackerViewModel = viewModel()
     val newCategoryState = remember { mutableStateOf("") }
     val categories = expenseViewModel.categories.value
     val localFocusManager = LocalFocusManager.current
 
     Column {
+        Row(verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth()) {
+            IconButton(onClick =  onBackwardClick ) {
+                Icon(imageVector =  Icons.Filled.ArrowBack, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primaryContainer)
+
+            }
+
+        }
         TextField(
             value = newCategoryState.value,
             onValueChange = { newCategoryState.value = it },
