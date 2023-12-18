@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,22 +65,32 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ExpenseManagerApp() {
     val navController = rememberNavController()
+    val expenseTrackerViewModel: ExpenseTrackerViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "main_screen") {
         composable("main_screen") {
             MainScreen(
                 onCategoryClick = { navController.navigate("add_category_screen") },
                 onExpenseClick = { navController.navigate("add_expense_screen") },
+                expenses = expenseTrackerViewModel.expenses.value,
+                categories = expenseTrackerViewModel.categories.value,
+                removeExpense = { expense -> expenseTrackerViewModel.removeExpense(expense) }
             )
         }
         composable("add_category_screen") {
             AddCategoryScreen(
-                onBackwardClick = { navController.popBackStack() }
+                onBackwardClick = { navController.popBackStack() },
+                addCategory = { category -> expenseTrackerViewModel.addCategory(category) },
+                categories = expenseTrackerViewModel.categories.value,
+                removeCategory = { category ->  expenseTrackerViewModel.removeCategory(category)}
+
             )
         }
         composable("add_expense_screen") {
             AddExpenseScreen(
-                onBackwardClick = { navController.popBackStack() }
+                onBackwardClick = { navController.popBackStack() },
+                addExpense = { expense -> expenseTrackerViewModel.addExpense(expense) },
+                categories = expenseTrackerViewModel.categories.value
             )
         }
 
@@ -90,16 +99,19 @@ fun ExpenseManagerApp() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onCategoryClick: () -> Unit, onExpenseClick: () -> Unit) {
-    val expenseTrackerViewModel: ExpenseTrackerViewModel = viewModel()
-    val expenses = expenseTrackerViewModel.expenses.value
-    val categories = expenseTrackerViewModel.categories.value
-    val removeExpense: (Expense) -> Unit = { expense ->
-        expenseTrackerViewModel.removeExpense(expense)
-    }
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    onCategoryClick: () -> Unit,
+    onExpenseClick: () -> Unit,
+    removeExpense: (Expense) -> Unit,
+    expenses: List<Expense>,
+    categories: List<Category>) {
+
     val joke = remember { mutableStateOf("Загрузка шутки...") }
 
-    Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+    Column(modifier = Modifier
+        .padding(16.dp)
+        .fillMaxSize()) {
         ExpenseHistory(expenses, onDeleteExpense = removeExpense)
         Spacer(modifier = Modifier.height(16.dp))
         ExpenseStatistics(expenses, categories)
@@ -127,7 +139,11 @@ fun MainScreen(modifier: Modifier = Modifier, onCategoryClick: () -> Unit, onExp
 
 
 @Composable
-fun ExpenseHistory(expenses: List<Expense>, modifier: Modifier = Modifier, onDeleteExpense: (Expense) -> Unit) {
+fun ExpenseHistory(
+    expenses: List<Expense>,
+    modifier: Modifier = Modifier,
+    onDeleteExpense: (Expense) -> Unit) {
+
     Column(modifier = modifier) {
         Text("История расходов:", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(8.dp))
@@ -154,7 +170,11 @@ fun ExpenseHistory(expenses: List<Expense>, modifier: Modifier = Modifier, onDel
 
 
 @Composable
-fun ExpenseStatistics(expenses: List<Expense>, categories: List<Category>, modifier: Modifier = Modifier) {
+fun ExpenseStatistics(
+    expenses: List<Expense>,
+    categories: List<Category>,
+    modifier: Modifier = Modifier) {
+
     val groupedExpenses = expenses.groupBy { it.category }
 
     Column {

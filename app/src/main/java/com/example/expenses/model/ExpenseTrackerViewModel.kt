@@ -21,7 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,18 +30,17 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.expenses.data.Category
 import com.example.expenses.data.Expense
 
 class ExpenseTrackerViewModel: ViewModel() {
     private val _expenses = mutableStateOf(emptyList<Expense>())
-    val expenses: State<List<Expense>> = _expenses
+    val expenses: MutableState<List<Expense>> = _expenses
 
     private val _categories = mutableStateOf(
         listOf(Category("Питание"), Category("Развлечения"), Category("Транспорт"))
     )
-    val categories: State<List<Category>> = _categories
+    val categories: MutableState<List<Category>> = _categories
 
 
     fun addExpense(expense: Expense) {
@@ -63,11 +62,12 @@ class ExpenseTrackerViewModel: ViewModel() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddExpenseScreen(onBackwardClick: () -> Unit) {
+fun AddExpenseScreen(
+    onBackwardClick: () -> Unit,
+    addExpense: (Expense) -> Unit,
+    categories: List<Category>) {
     val amountState = remember { mutableStateOf(0.0) }
     val categoryState = remember { mutableStateOf("") }
-    val expenseViewModel: ExpenseTrackerViewModel = viewModel()
-    val categories = expenseViewModel.categories.value
     val localFocusManager = LocalFocusManager.current
 
     Column {
@@ -100,13 +100,8 @@ fun AddExpenseScreen(onBackwardClick: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            expenseViewModel.addExpense(
-                Expense(
-                    id = 1,
-                    amount = amountState.value,
-                    category = categoryState.value
-                )
-            )
+            val newExpense = Expense(id = 1, amount = amountState.value, category = categoryState.value)
+            addExpense(newExpense)
             amountState.value = 0.0
             categoryState.value = ""
             localFocusManager.clearFocus()
@@ -119,19 +114,26 @@ fun AddExpenseScreen(onBackwardClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCategoryScreen(onBackwardClick: () -> Unit) {
-    val expenseViewModel: ExpenseTrackerViewModel = viewModel()
+fun AddCategoryScreen(
+    onBackwardClick: () -> Unit,
+    addCategory: (Category) -> Unit,
+    removeCategory: (Category) -> Unit,
+    categories: List<Category>) {
+
     val newCategoryState = remember { mutableStateOf("") }
-    val categories = expenseViewModel.categories.value
     val localFocusManager = LocalFocusManager.current
 
     Column {
-        Row(verticalAlignment = Alignment.Top,
+        Row(
+            verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()) {
-            IconButton(onClick =  onBackwardClick ) {
-                Icon(imageVector =  Icons.Filled.ArrowBack, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primaryContainer)
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = onBackwardClick) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primaryContainer
+                )
 
             }
 
@@ -143,7 +145,8 @@ fun AddCategoryScreen(onBackwardClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            expenseViewModel.addCategory(Category(newCategoryState.value))
+            val newCategory = Category(newCategoryState.value)
+            addCategory(newCategory)
             newCategoryState.value = ""
             localFocusManager.clearFocus()
         }) {
@@ -154,7 +157,7 @@ fun AddCategoryScreen(onBackwardClick: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(category.name)
                 Spacer(modifier = Modifier.width(8.dp))
-                IconButton(onClick = { expenseViewModel.removeCategory(category) }) {
+                IconButton(onClick = { removeCategory(category) }) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
                         contentDescription = null
@@ -165,6 +168,7 @@ fun AddCategoryScreen(onBackwardClick: () -> Unit) {
 
     }
 }
+
 
 
 
