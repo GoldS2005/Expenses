@@ -1,30 +1,28 @@
 package com.example.expenses
 
 import com.example.expenses.data.Joke
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
 
 
-interface JokeApiService {
+private val BASE_URL = "https://official-joke-api.appspot.com/"
+
+interface JokesApi {
     @GET("random_joke")
-    suspend fun getRandomJoke(): Joke
+    suspend fun getrandomJoke(): Joke
 }
 
-object JokeApi {
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://official-joke-api.appspot.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+private val retrofit: Retrofit = Retrofit.Builder()
+    .baseUrl(BASE_URL)
+    .addConverterFactory(GsonConverterFactory.create())
+    .addCallAdapterFactory(CoroutineCallAdapterFactory())
+    .build()
 
-    val service: JokeApiService = retrofit.create(JokeApiService::class.java)
-}
+val jokeApiService = retrofit.create(JokesApi::class.java)
 
-suspend fun getJokeFromApi(): String {
-    val jokeResponse = JokeApi.service.getRandomJoke()
-    return "${jokeResponse.setup} ${jokeResponse.punchline}"
-}
 
 
 

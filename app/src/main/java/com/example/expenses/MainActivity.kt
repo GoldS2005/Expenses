@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -39,10 +41,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.expenses.data.Category
 import com.example.expenses.data.Expense
+import com.example.expenses.data.Joke
 import com.example.expenses.model.AddCategoryScreen
 import com.example.expenses.model.AddExpenseScreen
 import com.example.expenses.model.ExpenseTrackerViewModel
 import com.example.expenses.ui.theme.ExpensesTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,6 +104,41 @@ fun ExpenseManagerApp() {
 }
 
 @Composable
+fun DisplayJoke() {
+    val joke = remember { mutableStateOf<Joke?>(null) }
+    val error = remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        try {
+            withContext(Dispatchers.IO) {
+                joke.value = jokeApiService.getrandomJoke()
+            }
+        } catch (e: Exception) {
+            error.value = e.message
+        }
+    }
+
+    if (joke.value != null) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Шутка:")
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(joke.value!!.setup)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(joke.value!!.punchline)
+        }
+    } else if (error.value != null) {
+        Text(error.value!!)
+        println(error.value!!)
+    } else {
+        CircularProgressIndicator()
+    }
+}
+
+
+@Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
     onCategoryClick: () -> Unit,
@@ -107,18 +147,20 @@ fun MainScreen(
     expenses: List<Expense>,
     categories: List<Category>) {
 
-    val joke = remember { mutableStateOf("Загрузка шутки...") }
-
-    Column(modifier = Modifier
-        .padding(16.dp)
-        .fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize()
+    ) {
         ExpenseHistory(expenses, onDeleteExpense = removeExpense)
         Spacer(modifier = Modifier.height(16.dp))
         ExpenseStatistics(expenses, categories)
     }
-    Row(verticalAlignment = Alignment.Bottom,
+    Row(
+        verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth()) {
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Button(onClick = onCategoryClick) {
             Text(text = "Категория", textAlign = TextAlign.Center, modifier = Modifier.width(75.dp))
 
@@ -126,16 +168,17 @@ fun MainScreen(
 
 
     }
-    Row(verticalAlignment = Alignment.Bottom,
+    Row(
+        verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.End,
-        modifier = Modifier.fillMaxWidth()) {
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Button(onClick = onExpenseClick) {
             Text(text = "Расход", textAlign = TextAlign.Center, modifier = Modifier.width(75.dp))
 
         }
     }
-
-    }
+}
 
 
 @Composable
