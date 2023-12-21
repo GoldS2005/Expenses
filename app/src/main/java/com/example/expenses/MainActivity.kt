@@ -104,7 +104,8 @@ fun ExpenseManagerApp() {
 }
 
 @Composable
-fun DisplayJoke() {
+fun DisplayJoke(
+    onMainClick: () -> Unit) {
     val joke = remember { mutableStateOf<Joke?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
 
@@ -134,6 +135,18 @@ fun DisplayJoke() {
         println(error.value!!)
     } else {
         CircularProgressIndicator()
+    }
+    Row(
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Button(onClick = onMainClick) {
+            Text(text = "Войти", textAlign = TextAlign.Center, modifier = Modifier.width(75.dp))
+
+        }
+
+
     }
 }
 
