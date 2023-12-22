@@ -1,4 +1,4 @@
-package com.example.expenses
+package com.example.expenses.network
 
 import com.example.expenses.data.Joke
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
