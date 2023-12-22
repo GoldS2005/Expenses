@@ -82,8 +82,8 @@ fun ExpenseManagerApp() {
         }
         composable("main_screen") {
             MainScreen(
-                onCategoryClick = { navController.navigate("add_category_screen") },
-                onExpenseClick = { navController.navigate("add_expense_screen") },
+                onCategoryClick = { navController.navigate("category_screen") },
+                onExpenseClick = { navController.navigate("expense_screen") },
                 expenses = expenseTrackerViewModel.expenses.value,
                 categories = expenseTrackerViewModel.categories.value,
                 removeExpense = { expense -> expenseTrackerViewModel.removeExpense(expense) }
