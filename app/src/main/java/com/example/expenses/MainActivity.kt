@@ -42,8 +42,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.expenses.data.Category
 import com.example.expenses.data.Expense
 import com.example.expenses.data.Joke
-import com.example.expenses.model.AddCategoryScreen
-import com.example.expenses.model.AddExpenseScreen
+import com.example.expenses.model.CategoryScreen
+import com.example.expenses.model.ExpenseScreen
 import com.example.expenses.model.ExpenseTrackerViewModel
 import com.example.expenses.ui.theme.ExpensesTheme
 import kotlinx.coroutines.Dispatchers
@@ -72,7 +72,14 @@ fun ExpenseManagerApp() {
     val navController = rememberNavController()
     val expenseTrackerViewModel: ExpenseTrackerViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = "main_screen") {
+    NavHost(navController = navController, startDestination = "joke_screen") {
+        composable("joke_screen") {
+            JokeScreen(
+                onMainClick = { navController.navigate("main_screen")}
+            )
+
+
+        }
         composable("main_screen") {
             MainScreen(
                 onCategoryClick = { navController.navigate("add_category_screen") },
@@ -82,8 +89,8 @@ fun ExpenseManagerApp() {
                 removeExpense = { expense -> expenseTrackerViewModel.removeExpense(expense) }
             )
         }
-        composable("add_category_screen") {
-            AddCategoryScreen(
+        composable("category_screen") {
+            CategoryScreen(
                 onBackwardClick = { navController.popBackStack() },
                 addCategory = { category -> expenseTrackerViewModel.addCategory(category) },
                 categories = expenseTrackerViewModel.categories.value,
@@ -91,8 +98,8 @@ fun ExpenseManagerApp() {
 
             )
         }
-        composable("add_expense_screen") {
-            AddExpenseScreen(
+        composable("expense_screen") {
+            ExpenseScreen(
                 onBackwardClick = { navController.popBackStack() },
                 addExpense = { expense -> expenseTrackerViewModel.addExpense(expense) },
                 categories = expenseTrackerViewModel.categories.value
@@ -104,8 +111,9 @@ fun ExpenseManagerApp() {
 }
 
 @Composable
-fun DisplayJoke(
-    onMainClick: () -> Unit) {
+fun JokeScreen(
+    onMainClick: () -> Unit,
+    modifier: Modifier = Modifier) {
     val joke = remember { mutableStateOf<Joke?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
 

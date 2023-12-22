@@ -12,7 +12,7 @@ class GetJokesApiModel: ViewModel() {
 
     private fun getrandomJoke() {
         viewModelScope.launch {
-            val listresult = jokeApiService.getrandomJoke()
+            val joke = jokeApiService.getrandomJoke()
         }
     }
 

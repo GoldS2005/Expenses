@@ -62,7 +62,7 @@ class ExpenseTrackerViewModel: ViewModel() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddExpenseScreen(
+fun ExpenseScreen(
     onBackwardClick: () -> Unit,
     addExpense: (Expense) -> Unit,
     categories: List<Category>) {
@@ -114,7 +114,7 @@ fun AddExpenseScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCategoryScreen(
+fun CategoryScreen(
     onBackwardClick: () -> Unit,
     addCategory: (Category) -> Unit,
     removeCategory: (Category) -> Unit,
